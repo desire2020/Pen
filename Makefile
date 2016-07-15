@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -O2
+CFLAGS = -std=c++11 -O2 -Wl,--stack=0x10000000
 
 _OBJ = pen-lang.o \
 	   pen-interfaces.o \

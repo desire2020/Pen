@@ -3,6 +3,8 @@
 #include "pen-interfaces.hpp"
 #include <fstream>
 using std :: ifstream;
+using std :: istream;
+using std :: ostream;
 
 class TError
 {
@@ -26,6 +28,14 @@ public:
     void fopen(istream & src);
     deque<string> inside;
 };
+class TFunction
+{
+public:
+    string title;
+    int l, r;
+    TFunction(const string & _title, int _l, int _r);
+    TFunction(int _l, int _r);
+};
 
 class Package
 {
@@ -33,12 +43,23 @@ public:
     string *str_val;
     long long *int_val;
     deque<Package> *seq_val;
-    struct block
-    {
-        int l, r;
-    } *block;
+    TFunction *code_seg;
     Package();
+    Package(const Package & rhs);
+    Package(Package && rhs);
+    Package(const string & _str);
+    Package(long long _int);
+    Package(const TSeq_arg & _seq);
+    Package(TSeq_arg && _seq);
+    Package(const string & _title, int _l, int _r);
+    Package(int _l, int _r);
+    ~Package();
+    Package & operator =(const Package & rhs);
+    Package & operator =(Package && rhs);
+    bool empty() const;
 };
+
+ostream & operator <<(ostream &fout, const Package & rhs);
 
 class TScanner
 {
@@ -62,19 +83,52 @@ public:
         size_t attribute_value;
         TToken();
         TToken(TToken_name _token_name, size_t _attribute_value);
+        bool operator==(const TToken & rhs) const;
         friend ostream & operator <<(ostream &fout, const TToken & rhs);
     };
+
     deque<string> seq_imm_str, seq_identifier;
     deque<long long> seq_imm_int;
     deque<TToken> lexemes;
 
     void append(const string & src);
 };
+const TScanner :: TToken token_round_bracket_l = TScanner :: TToken(TScanner :: assign, _round_bracket_l);
+const TScanner :: TToken token_round_bracket_r = TScanner :: TToken(TScanner :: assign, _round_bracket_r);
+const TScanner :: TToken token_rect_bracket_l = TScanner :: TToken(TScanner :: assign, _rect_bracket_l);
+const TScanner :: TToken token_rect_bracket_r = TScanner :: TToken(TScanner :: assign, _rect_bracket_r);
+const TScanner :: TToken token_italian_bracket_l = TScanner :: TToken(TScanner :: assign, _italian_bracket_l);
+const TScanner :: TToken token_italian_bracket_r = TScanner :: TToken(TScanner :: assign, _italian_bracket_r);
+
+#define DEF(x) class x : public TProcessor\
+               { \
+                    Package proc(int & pos, deque<TScanner :: TToken> & lexemes); \
+               }
 
 ostream & operator <<(ostream &fout, const TScanner :: TToken & rhs);
 
 class TParser
 {
+public:
+    class TProcessor;
+    class TProcessor_print;
+protected:
+    deque<TScanner :: TToken> * generated_tokens;
+    unordered_map<string, TFunction> symbol_table;
+    unordered_map<string, TProcessor *> keyword_vtable;
+    deque<TSeq_arg> arg_stack;
+public:
+    class TProcessor
+    {
+    public:
+        virtual Package proc(int & pos, deque<TScanner :: TToken> & lexemes) = 0;
+    };
 
+    DEF(TProcessor_print);
+
+    TParser();
+    ~TParser();
+    Package execute(int & pos);
+    void rebind(deque<TScanner :: TToken> & target);
 };
 #endif // PENLANG_HPP

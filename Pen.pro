@@ -10,4 +10,5 @@ SOURCES += main.cpp \
 HEADERS += \
     includes/pen-interfaces.hpp \
     includes/pen-lang.hpp \
-    includes/pen-utility.hpp
+    includes/pen-utility.hpp \
+    includes/suimem.hpp
