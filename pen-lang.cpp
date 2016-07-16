@@ -232,6 +232,7 @@ void TFile :: fopen(std::istream &src)
     }
 }
 
+TFunction :: TFunction() : title(""), l(0), r(0) {}
 TFunction :: TFunction(const std::__cxx11::string &_title, int _l, int _r) : title(_title), l(_l), r(_r) {}
 TFunction :: TFunction(int _l, int _r) : title(""), l(_l), r(_r) {}
 
@@ -400,52 +401,16 @@ ostream & operator <<(ostream &fout, const TScanner :: TToken & rhs)
 }
 
 
-Package TParser :: TProcessor_print :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
-{
-    Package next;
-    if (pos >= lexemes.size())
-        return Package();
-    while (true)
-    {
-        next = std :: move(Parser.execute(pos));
-        pos++;
-        if (next.empty())
-        {
-            --pos;
-            break;
-        }
-        std :: cout << next;
-        std :: cout.flush();
-    }
-    return Package(0);
-}
-Package TParser :: TProcessor_print :: def(int & pos, deque<TScanner :: TToken> & lexemes)
-{
-    Package next;
-    if (pos >= lexemes.size())
-        return Package();
-    while (true)
-    {
-        next = std :: move(Parser.execute(pos));
-        pos++;
-        if (next.empty())
-        {
-            --pos;
-            break;
-        }
-        std :: cout << next;
-        std :: cout.flush();
-    }
-    return Package(0);
-}
+
 
 TParser :: TParser()
 {
     keyword_vtable["print"] = new TProcessor_print();
     keyword_vtable["def"]   = new TProcessor_def();
-    keyword_vtable["+"]     = new TProcessor_plus();
+    keyword_vtable["+"]     = new TProcessor_add();
     keyword_vtable["-"]     = new TProcessor_sub();
-    keyword_vtable["*"]     = new TProcessor
+    keyword_vtable["*"]     = new TProcessor_mul();
+    keyword_vtable["/"]     = new TProcessor_div();
 }
 TParser :: ~TParser()
 {

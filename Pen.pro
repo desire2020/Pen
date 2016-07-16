@@ -5,7 +5,8 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     pen-interfaces.cpp \
-    pen-lang.cpp
+    pen-lang.cpp \
+    pen-keyword.cpp
 
 HEADERS += \
     includes/pen-interfaces.hpp \

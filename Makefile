@@ -1,8 +1,9 @@
 CC = g++
-CFLAGS = -std=c++11 -O2 -Wl,--stack=0x10000000
+CFLAGS = -std=c++11 -fno-stack-protector -g -rdynamic
 
 _OBJ = pen-lang.o \
 	   pen-interfaces.o \
+	   pen-keyword.o \
 	main.o 
 	
 _DEPS = pen-interfaces.hpp \
@@ -22,7 +23,6 @@ $(ODIR)/%.o : %.cpp  $(DEPS)
 pen : $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 	cp ./pen ./bin/pen
-	rm -f ./pen
 
 .PHONY : clean rebuild
 

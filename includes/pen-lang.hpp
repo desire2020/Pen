@@ -33,6 +33,7 @@ class TFunction
 public:
     string title;
     int l, r;
+    TFunction();
     TFunction(const string & _title, int _l, int _r);
     TFunction(int _l, int _r);
 };
@@ -112,6 +113,11 @@ class TParser
 public:
     class TProcessor;
     class TProcessor_print;
+    class TProcessor_def;
+    class TProcessor_add;
+    class TProcessor_sub;
+    class TProcessor_mul;
+    class TProcessor_div;
 protected:
     deque<TScanner :: TToken> * generated_tokens;
     unordered_map<string, TFunction> symbol_table;
@@ -125,7 +131,11 @@ public:
     };
 
     DEF(TProcessor_print);
-
+    DEF(TProcessor_def);
+    DEF(TProcessor_add);
+    DEF(TProcessor_sub);
+    DEF(TProcessor_mul);
+    DEF(TProcessor_div);
     TParser();
     ~TParser();
     Package execute(int & pos);
