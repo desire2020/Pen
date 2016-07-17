@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <unordered_map>
 #include <stack>
+#include <memory>
 #include "suimem.hpp"
 
 using std :: deque;
@@ -15,6 +16,7 @@ using std :: ostream;
 using std :: stack;
 using std :: unordered_map;
 using std :: pair;
+using std :: shared_ptr;
 using namespace sui;
 
 class TScanner;

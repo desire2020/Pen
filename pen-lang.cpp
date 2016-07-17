@@ -236,102 +236,51 @@ TFunction :: TFunction() : title(""), l(0), r(0) {}
 TFunction :: TFunction(const std::__cxx11::string &_title, int _l, int _r) : title(_title), l(_l), r(_r) {}
 TFunction :: TFunction(int _l, int _r) : title(""), l(_l), r(_r) {}
 
-Package :: Package() : int_val(NULL), str_val(NULL), seq_val(NULL), code_seg(NULL) {}
-Package :: Package(const Package &rhs)
-{
-    Package();
-    if (rhs.int_val != NULL)
-        int_val = new long long(*(rhs.int_val));
-    if (rhs.str_val != NULL)
-        str_val = new string(*(rhs.str_val));
-    if (rhs.seq_val != NULL)
-        seq_val = new TSeq_arg(*(rhs.seq_val));
-    if (rhs.code_seg != NULL)
-        code_seg = new TFunction(*(rhs.code_seg));
-}
-Package :: Package(Package && rhs)
-{
-    if (rhs.int_val != NULL)
-        int_val = new long long(*(rhs.int_val));
-    if (rhs.str_val != NULL)
-        str_val = new string(*(rhs.str_val));
-    if (rhs.seq_val != NULL)
-        seq_val = new TSeq_arg(std :: move(*(rhs.seq_val)));
-    if (rhs.code_seg != NULL)
-        code_seg = new TFunction(*(rhs.code_seg));
-}
-
 Package :: Package(const std::__cxx11::string &_str)
-{
-    int_val = NULL;
-    str_val = new string(_str);
-    seq_val = NULL;
-    code_seg = NULL;
-}
+    :
+      int_val(),
+      str_val(new string(_str)),
+      seq_val(),
+      code_seg() {}
 Package :: Package(long long _int)
-{
-    int_val = new long long(_int);
-    str_val = NULL;
-    seq_val = NULL;
-    code_seg = NULL;
-}
+    :
+      int_val(new long long(_int)),
+      str_val(),
+      seq_val(),
+      code_seg() {}
 Package :: Package(const TSeq_arg & _seq)
-{
-    int_val = NULL;
-    str_val = NULL;
-    seq_val = new TSeq_arg(_seq);
-    code_seg = NULL;
-}
+    :
+      int_val(),
+      str_val(),
+      seq_val(new TSeq_arg(_seq)),
+      code_seg() {}
 Package :: Package(TSeq_arg && _seq)
-{
-    int_val = NULL;
-    str_val = NULL;
-    seq_val = new TSeq_arg(_seq);
-    code_seg = NULL;
-}
+    :
+      int_val(),
+      str_val(),
+      seq_val(new TSeq_arg(std :: move(_seq))),
+      code_seg() {}
 Package :: Package(const std::__cxx11::string &_title, int _l, int _r)
-{
-    int_val = NULL;
-    str_val = NULL;
-    seq_val = NULL;
-    code_seg = new TFunction(_title, _l, _r);
-}
+    :
+      int_val(),
+      str_val(),
+      seq_val(),
+      code_seg(new TFunction(_title, _l, _r)) {}
 Package & Package :: operator = (const Package & rhs)
 {
-    this -> ~Package();
-    int_val = clone_ptr(rhs.int_val);
-    str_val = clone_ptr(rhs.str_val);
-    seq_val = clone_ptr(rhs.seq_val);
-    code_seg = clone_ptr(rhs.code_seg);
-    return *this;
-}
-Package & Package :: operator = (Package && rhs)
-{
-    this -> ~Package();
-    int_val = move_ptr(rhs.int_val);
-    str_val = move_ptr(rhs.str_val);
-    seq_val = move_ptr(rhs.seq_val);
-    code_seg = move_ptr(rhs.code_seg);
+    this -> int_val = rhs.int_val;
+    this -> str_val = rhs.str_val;
+    this -> code_seg = rhs.code_seg;
+    this -> seq_val = rhs.seq_val;
     return *this;
 }
 Package :: Package(int _l, int _r)
-{
-    int_val = NULL;
-    str_val = NULL;
-    seq_val = NULL;
-    code_seg = new TFunction(_l, _r);
-}
-Package :: ~Package()
-{
-    if (int_val != NULL)
-        delete int_val;
-    if (str_val != NULL)
-        delete str_val;
-    if (seq_val != NULL)
-        delete seq_val;
-    if (code_seg != NULL)
-        delete code_seg;
-}
+    :
+      int_val(),
+      str_val(),
+      seq_val(),
+      code_seg(new TFunction(_l, _r)) {}
+Package :: ~Package() {}
 bool Package :: empty() const
 {
     return int_val == NULL && str_val == NULL && seq_val == NULL && code_seg == NULL;
@@ -352,7 +301,8 @@ ostream & operator <<(ostream & fout, const Package & rhs)
     }
     if (rhs.code_seg != NULL)
     {
-        fout << "<#procedure# " << rhs.code_seg -> title << ">";
+        fout << "<#procedure# " << rhs.code_seg -> title;
+        fout << " ranging from " << rhs.code_seg -> l << " to " << rhs.code_seg -> r << ">";
     }
     return fout;
 }
@@ -407,6 +357,9 @@ TParser :: TParser()
 {
     keyword_vtable["print"] = new TProcessor_print();
     keyword_vtable["def"]   = new TProcessor_def();
+    keyword_vtable["lambda"] = new TProcessor_lambda();
+    keyword_vtable["arg"]   = new TProcessor_arg();
+    keyword_vtable["cond"]  = new TProcessor_cond();
     keyword_vtable["+"]     = new TProcessor_add();
     keyword_vtable["-"]     = new TProcessor_sub();
     keyword_vtable["*"]     = new TProcessor_mul();
@@ -423,6 +376,11 @@ TParser :: ~TParser()
 void TParser :: rebind(deque<TScanner :: TToken> &target)
 {
     generated_tokens = &target;
+}
+
+Package & TParser :: get_arg(size_t idx)
+{
+    return arg_stack[arg_stack.size() - 1][idx];
 }
 
 Package TParser :: execute(int & pos)
@@ -447,17 +405,19 @@ Package TParser :: execute(int & pos)
                     Package next;
                     while (true)
                     {
-                        next = std :: move(execute(++pos));
+                        next = execute(++pos);
                         if (next.empty())
                             break;
-                        in_pending.push_back(std :: move(next));
+                        in_pending.push_back(next);
                     }
                     arg_stack.push_back(std :: move(in_pending));
                     auto tg = symbol_table.find(title);
                     if (tg == symbol_table.end())
                         Error.message("Invalid operator #" + title + "# found.");
                     int p = tg -> second.l;
-                    return execute(p);
+                    auto ret_p = execute(p);
+                    arg_stack.pop_back();
+                    return ret_p;
                 }
             } else {
                 return Package();

@@ -2,7 +2,7 @@
 #include "./includes/pen-utility.hpp"
 using namespace std;
 TSeq_arg seq_main;
-constexpr int size = 768 << 20;
+constexpr int size = 1024 << 20;
 char p[size];
 int main(int argc, char *argv[])
 {
@@ -27,16 +27,19 @@ int main(int argc, char *argv[])
             getline(fin, op);
             Scanner.append(op);
         }
-    }/*
+    }
     for (size_t i = 0; i < Scanner.lexemes.size(); ++i)
     {
-        cout << Scanner.lexemes[i];
+        cout << "Token #" << i << ":\t" << Scanner.lexemes[i] << endl;
     }
     cout << endl;
-    cout << "########################Token list end#############################" << endl;*/
+    cout << "########################Token list end#############################" << endl;
     int pos = 0;
+    int ret_v;
     Parser.rebind(Scanner.lexemes);
-    int ret_v = (*Parser.execute(pos).int_val);
+    while (pos < Scanner.lexemes.size())
+        ret_v = (*Parser.execute(pos).int_val);
     delete seq_user_args;
+    cout.flush();
     exit(ret_v);
 }

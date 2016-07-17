@@ -41,13 +41,13 @@ public:
 class Package
 {
 public:
-    string *str_val;
-    long long *int_val;
-    deque<Package> *seq_val;
-    TFunction *code_seg;
-    Package();
-    Package(const Package & rhs);
-    Package(Package && rhs);
+    shared_ptr<string> str_val;
+    shared_ptr<long long> int_val;
+    shared_ptr<deque<Package>> seq_val;
+    shared_ptr<TFunction> code_seg;
+    Package() = default;
+    Package(const Package & rhs) = default;
+    Package(Package && rhs) = default;
     Package(const string & _str);
     Package(long long _int);
     Package(const TSeq_arg & _seq);
@@ -56,7 +56,6 @@ public:
     Package(int _l, int _r);
     ~Package();
     Package & operator =(const Package & rhs);
-    Package & operator =(Package && rhs);
     bool empty() const;
 };
 
@@ -103,6 +102,7 @@ const TScanner :: TToken token_italian_bracket_r = TScanner :: TToken(TScanner :
 
 #define DEF(x) class x : public TProcessor\
                { \
+               public: \
                     Package proc(int & pos, deque<TScanner :: TToken> & lexemes); \
                }
 
@@ -114,7 +114,11 @@ public:
     class TProcessor;
     class TProcessor_print;
     class TProcessor_def;
+    class TProcessor_lambda;
+    class TProcessor_arg;
     class TProcessor_add;
+    class TProcessor_cond;
+    class TProcessor_eq;
     class TProcessor_sub;
     class TProcessor_mul;
     class TProcessor_div;
@@ -132,13 +136,18 @@ public:
 
     DEF(TProcessor_print);
     DEF(TProcessor_def);
+    DEF(TProcessor_lambda);
+    DEF(TProcessor_arg);
     DEF(TProcessor_add);
+    DEF(TProcessor_cond);
+    DEF(TProcessor_eq);
     DEF(TProcessor_sub);
     DEF(TProcessor_mul);
     DEF(TProcessor_div);
     TParser();
     ~TParser();
     Package execute(int & pos);
+    Package & get_arg(size_t idx);
     void rebind(deque<TScanner :: TToken> & target);
 };
 #endif // PENLANG_HPP
