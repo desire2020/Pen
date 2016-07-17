@@ -8,12 +8,8 @@ Package TParser :: TProcessor_print :: proc(int & pos, deque<TScanner :: TToken>
     while (true)
     {
         next = Parser.execute(pos);
-        pos++;
         if (next.empty())
-        {
-            --pos;
             break;
-        }
         std :: cout << next;
         std :: cout.flush();
     }
@@ -26,9 +22,8 @@ Package TParser :: TProcessor_def :: proc(int & pos, deque<TScanner :: TToken> &
     if (pos >= lexemes.size())
         return Package();
     title = std :: move(Parser.execute(pos));
-    pos++;
     content = std :: move(Parser.execute(pos));
-    pos++;
+    ++pos;
     if (title.code_seg == NULL || content.code_seg == NULL)
         Error.message("Invalid arguments specified for <procedure #def#>.");
     Parser.symbol_table[title.code_seg -> title] = TFunction(title.code_seg -> title, content.code_seg -> l, content.code_seg -> r);
@@ -38,7 +33,7 @@ Package TParser :: TProcessor_lambda :: proc(int &pos, deque<TScanner::TToken> &
 {
     int l = pos;
     int sign = 1;
-    for (; sign != 0; ++pos)
+    for (++pos; sign != 0; ++pos)
     {
         if (lexemes[pos] == token_italian_bracket_l || lexemes[pos] == token_rect_bracket_l || lexemes[pos] == token_round_bracket_l)
         {
@@ -50,6 +45,7 @@ Package TParser :: TProcessor_lambda :: proc(int &pos, deque<TScanner::TToken> &
             }
         }
     }
+    ++pos;
     return Package("__lambda__", l, pos);
 }
 Package TParser :: TProcessor_arg :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
@@ -58,7 +54,7 @@ Package TParser :: TProcessor_arg :: proc(int & pos, deque<TScanner :: TToken> &
     if (pos >= lexemes.size())
         return Package();
     next = std :: move(Parser.execute(pos));
-    pos++;
+    Parser.execute(pos);
     next = Parser.get_arg(*next.int_val);
     if (next.int_val != NULL)
         return Package(*next.int_val);
@@ -77,7 +73,6 @@ Package TParser :: TProcessor_cond :: proc(int &pos, deque<TScanner::TToken> &le
         return Package();
     long long ans = 0;
     next = std :: move(Parser.execute(pos));
-    pos++;
     if (next.empty())
     {
         Error.message("Too few arguments specified for <procedure #?#>");
@@ -90,7 +85,7 @@ Package TParser :: TProcessor_cond :: proc(int &pos, deque<TScanner::TToken> &le
         {
             int l = pos;
             int sign = 1;
-            for (pos += 2; sign != 0; ++pos)
+            for (++pos; sign != 0; ++pos)
             {
                 if (lexemes[pos] == token_italian_bracket_l || lexemes[pos] == token_rect_bracket_l || lexemes[pos] == token_round_bracket_l)
                 {
@@ -104,6 +99,7 @@ Package TParser :: TProcessor_cond :: proc(int &pos, deque<TScanner::TToken> &le
             }
         } else {
             Parser.execute(pos);
+            ++pos;
         }
     } else {
         if (lexemes[pos].token_name == TScanner :: assign)
@@ -123,13 +119,10 @@ Package TParser :: TProcessor_cond :: proc(int &pos, deque<TScanner::TToken> &le
                 }
             }
         } else {
-            next = std :: move(Parser.execute(pos));
+            Parser.execute(pos);
         }
         next = std :: move(Parser.execute(pos));
-        if (next.empty())
-        {
-            --pos;
-        }
+        ++pos;
     }
     if (next.int_val != NULL)
         return Package(*next.int_val);
@@ -141,6 +134,40 @@ Package TParser :: TProcessor_cond :: proc(int &pos, deque<TScanner::TToken> &le
         return Package(next.code_seg->title, next.code_seg->l, next.code_seg->r);
     return Package(0);
 }
+#define REG_LOGI(processor_title, x) Package TParser :: processor_title :: proc(int & pos, deque<TScanner :: TToken> & lexemes) \
+                    { \
+                        Package a1; \
+                        Package a2; \
+                        if (pos >= lexemes.size()) \
+                            return Package(0); \
+                        a1 = std :: move(Parser.execute(pos)); \
+                        Package ret_v(1); \
+                        while (true) \
+                        { \
+                            a2 = std :: move(Parser.execute(pos)); \
+                            if (a2.empty()) \
+                            { \
+                                break; \
+                            } \
+                            if (a1.int_val != NULL) \
+                            { \
+                                if (a2.int_val == NULL || !((*a1.int_val) x (*a2.int_val))) \
+                                    ret_v = Package(0); \
+                            } \
+                            if (a1.str_val != NULL) \
+                            { \
+                                if (a2.str_val == NULL || !((*a1.str_val) x (*a2.str_val))) \
+                                    ret_v = Package(0); \
+                            } \
+                        } \
+                        return ret_v; \
+                    }
+REG_LOGI(TProcessor_eq, ==)
+REG_LOGI(TProcessor_less, <)
+REG_LOGI(TProcessor_lesseq, <=)
+REG_LOGI(TProcessor_greater, >)
+REG_LOGI(TProcessor_greatereq, >=)
+REG_LOGI(TProcessor_ineq, !=)
 
 Package TParser :: TProcessor_add :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
 {
@@ -151,10 +178,8 @@ Package TParser :: TProcessor_add :: proc(int & pos, deque<TScanner :: TToken> &
     while (true)
     {
         next = std :: move(Parser.execute(pos));
-        pos++;
         if (next.empty())
         {
-            --pos;
             break;
         }
         ans += *next.int_val;
@@ -168,7 +193,6 @@ Package TParser :: TProcessor_sub :: proc(int & pos, deque<TScanner :: TToken> &
         return Package();
     long long ans = 0;
     next = std :: move(Parser.execute(pos));
-    pos++;
     if (next.empty())
     {
         Error.message("Too few arguments specified for <procedure #-#>");
@@ -177,10 +201,8 @@ Package TParser :: TProcessor_sub :: proc(int & pos, deque<TScanner :: TToken> &
     while (true)
     {
         next = std :: move(Parser.execute(pos));
-        pos++;
         if (next.empty())
         {
-            --pos;
             break;
         }
         ans -= *next.int_val;
@@ -196,10 +218,8 @@ Package TParser :: TProcessor_mul :: proc(int & pos, deque<TScanner :: TToken> &
     while (true)
     {
         next = std :: move(Parser.execute(pos));
-        pos++;
         if (next.empty())
         {
-            --pos;
             break;
         }
         ans *= *next.int_val;
@@ -213,19 +233,16 @@ Package TParser :: TProcessor_div :: proc(int & pos, deque<TScanner :: TToken> &
         return Package();
     long long ans = 0;
     next = std :: move(Parser.execute(pos));
-    pos++;
     if (next.empty())
     {
-        Error.message("Too few arguments specified for <procedure #+#>");
+        Error.message("Too few arguments specified for <procedure #/#>");
     }
     ans = *next.int_val;
     while (true)
     {
         next = std :: move(Parser.execute(pos));
-        pos++;
         if (next.empty())
         {
-            --pos;
             break;
         }
         ans /= *next.int_val;

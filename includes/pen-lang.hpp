@@ -119,6 +119,11 @@ public:
     class TProcessor_add;
     class TProcessor_cond;
     class TProcessor_eq;
+    class TProcessor_less;
+    class TProcessor_lesseq;
+    class TProcessor_greater;
+    class TProcessor_greatereq;
+    class TProcessor_ineq;
     class TProcessor_sub;
     class TProcessor_mul;
     class TProcessor_div;
@@ -141,6 +146,11 @@ public:
     DEF(TProcessor_add);
     DEF(TProcessor_cond);
     DEF(TProcessor_eq);
+    DEF(TProcessor_less);
+    DEF(TProcessor_lesseq);
+    DEF(TProcessor_greater);
+    DEF(TProcessor_greatereq);
+    DEF(TProcessor_ineq);
     DEF(TProcessor_sub);
     DEF(TProcessor_mul);
     DEF(TProcessor_div);

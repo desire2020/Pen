@@ -2,11 +2,11 @@
 #include "./includes/pen-utility.hpp"
 using namespace std;
 TSeq_arg seq_main;
-constexpr int size = 1024 << 20;
+constexpr size_t size = 1536 << 20;
 char p[size];
 int main(int argc, char *argv[])
 {
-//This assembly code expands the system stack space upto 768MB. x86-64 only.
+//This assembly code expands the system stack space upto 1536MB. x86-64 only.
     __asm__("MOVQ %0, %%RSP\n" :: "r"(p + size));
     string op;
     TSeq_arg * seq_user_args;
@@ -28,6 +28,8 @@ int main(int argc, char *argv[])
             Scanner.append(op);
         }
     }
+    Scanner.append("(main)");
+
     for (size_t i = 0; i < Scanner.lexemes.size(); ++i)
     {
         cout << "Token #" << i << ":\t" << Scanner.lexemes[i] << endl;
@@ -38,7 +40,12 @@ int main(int argc, char *argv[])
     int ret_v;
     Parser.rebind(Scanner.lexemes);
     while (pos < Scanner.lexemes.size())
-        ret_v = (*Parser.execute(pos).int_val);
+    {
+        auto p = Parser.execute(pos).int_val;
+        if (p != NULL)
+           ret_v = *p;
+        else break;
+    }
     delete seq_user_args;
     cout.flush();
     exit(ret_v);

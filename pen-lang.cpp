@@ -360,6 +360,14 @@ TParser :: TParser()
     keyword_vtable["lambda"] = new TProcessor_lambda();
     keyword_vtable["arg"]   = new TProcessor_arg();
     keyword_vtable["cond"]  = new TProcessor_cond();
+    keyword_vtable["?"]     = new TProcessor_cond();
+    keyword_vtable["<"]     = new TProcessor_less();
+    keyword_vtable["<="]    = new TProcessor_lesseq();
+    keyword_vtable[">"]     = new TProcessor_greater();
+    keyword_vtable[">="]    = new TProcessor_greatereq();
+    keyword_vtable["!="]    = new TProcessor_ineq();
+    keyword_vtable["=="]    = new TProcessor_eq();
+    keyword_vtable["eq"]    = new TProcessor_eq();
     keyword_vtable["+"]     = new TProcessor_add();
     keyword_vtable["-"]     = new TProcessor_sub();
     keyword_vtable["*"]     = new TProcessor_mul();
@@ -399,38 +407,46 @@ Package TParser :: execute(int & pos)
                 if (target != keyword_vtable.end())
                 {
                     TProcessor * op = target -> second;
-                    return op -> proc(++pos, lst);
+                    auto t = op -> proc(pos, lst);
+                    return t;
                 } else {
                     TSeq_arg in_pending;
                     Package next;
                     while (true)
                     {
-                        next = execute(++pos);
+                        next = execute(pos);
                         if (next.empty())
                             break;
                         in_pending.push_back(next);
                     }
                     arg_stack.push_back(std :: move(in_pending));
-                    auto tg = symbol_table.find(title);
-                    if (tg == symbol_table.end())
-                        Error.message("Invalid operator #" + title + "# found.");
-                    int p = tg -> second.l;
+                    int p;
+                    if (tmp.code_seg -> l == 0 && tmp.code_seg -> r == 0)
+                    {
+                        auto tg = symbol_table.find(title);
+                        if (tg == symbol_table.end())
+                            Error.message("Invalid operator #" + title + "# found.");
+                        p = tg -> second.l;
+                    } else {
+                        p = tmp.code_seg -> l;
+                    }
                     auto ret_p = execute(p);
                     arg_stack.pop_back();
                     return ret_p;
                 }
             } else {
+                pos++;
                 return Package();
             }
         break;
         case TScanner :: id :
-            return Package(Scanner.seq_identifier[lst[pos].attribute_value], 0, 0);
+            return Package(Scanner.seq_identifier[lst[pos++].attribute_value], 0, 0);
         break;
         case TScanner :: immediate_int :
-            return Package(Scanner.seq_imm_int[lst[pos].attribute_value]);
+            return Package(Scanner.seq_imm_int[lst[pos++].attribute_value]);
         break;
         case TScanner :: immediate_str :
-            return Package(Scanner.seq_imm_str[lst[pos].attribute_value]);
+            return Package(Scanner.seq_imm_str[lst[pos++].attribute_value]);
         break;
     }
     return Package();
