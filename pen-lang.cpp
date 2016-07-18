@@ -190,7 +190,7 @@ void TScanner :: append(const std::__cxx11::string &src)
                                     if (p >= src.length())
                                         Error.message("Fatal : Quote mismatch.");
                                     ++last_p;
-                                    seq_imm_str.push_back(tools.eschar_reinterpret(src.substr(last_p, p - last_p)));
+                                    seq_imm_str.push_back(std :: move(tools.eschar_reinterpret(src.substr(last_p, p - last_p))));
                                     lexemes.push_back(TToken(immediate_str, seq_imm_str.size() - 1));
                                     ++p;
                                 } else
@@ -209,7 +209,24 @@ void TScanner :: append(const std::__cxx11::string &src)
         last_p = p;
     }
 }
-
+void TScanner :: proc_import()
+{
+    TToken rhs = lexemes[lexemes.size() - 2];
+    TToken path = lexemes[lexemes.size() - 1];
+    lexemes.pop_back();
+    lexemes.pop_back();
+    if (seq_identifier[rhs.attribute_value] == "import" && path.token_name == immediate_str)
+    {
+        ifstream fin(seq_imm_str[path.attribute_value].c_str());
+        string op;
+        while (!fin.eof())
+        {
+            std :: getline(fin, op);
+            append(op);
+        }
+        fin.close();
+    }
+}
 
 void TFile :: fopen(const std::__cxx11::string &path)
 {
@@ -274,6 +291,15 @@ Package & Package :: operator = (const Package & rhs)
     this -> seq_val = rhs.seq_val;
     return *this;
 }
+const Package & Package :: operator[](size_t idx) const
+{
+    if (seq_val != NULL)
+    {
+        return seq_val -> at(idx);
+    }
+    Error.message("Fatal : Trying to access a non-sequece object through index.");
+}
+
 Package :: Package(int _l, int _r)
     :
       int_val(),
@@ -351,8 +377,6 @@ ostream & operator <<(ostream &fout, const TScanner :: TToken & rhs)
 }
 
 
-
-
 TParser :: TParser()
 {
     keyword_vtable["print"] = new TProcessor_print();
@@ -372,6 +396,16 @@ TParser :: TParser()
     keyword_vtable["-"]     = new TProcessor_sub();
     keyword_vtable["*"]     = new TProcessor_mul();
     keyword_vtable["/"]     = new TProcessor_div();
+    keyword_vtable["link"]  = new TProcessor_link();
+    keyword_vtable["substr"] = new TProcessor_substr();
+    keyword_vtable["nextInt"] = new TProcessor_nextInt();
+    keyword_vtable["nextStr"] = new TProcessor_nextStr();
+    keyword_vtable["cons"]  = new TProcessor_cons();
+    keyword_vtable["push_back"] = new TProcessor_push_back();
+    keyword_vtable["push_front"] = new TProcessor_push_front();
+    keyword_vtable["makeseq"]   = new TProcessor_makeseq();
+    keyword_vtable["subseq"]    = new TProcessor_subseq();
+    keyword_vtable["at"]    = new TProcessor_at();
 }
 TParser :: ~TParser()
 {

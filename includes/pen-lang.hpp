@@ -56,6 +56,7 @@ public:
     Package(int _l, int _r);
     ~Package();
     Package & operator =(const Package & rhs);
+    const Package & operator [](size_t idx) const;
     bool empty() const;
 };
 
@@ -92,6 +93,7 @@ public:
     deque<TToken> lexemes;
 
     void append(const string & src);
+    void proc_import();
 };
 const TScanner :: TToken token_round_bracket_l = TScanner :: TToken(TScanner :: assign, _round_bracket_l);
 const TScanner :: TToken token_round_bracket_r = TScanner :: TToken(TScanner :: assign, _round_bracket_r);
@@ -116,7 +118,6 @@ public:
     class TProcessor_def;
     class TProcessor_lambda;
     class TProcessor_arg;
-    class TProcessor_add;
     class TProcessor_cond;
     class TProcessor_eq;
     class TProcessor_less;
@@ -124,9 +125,20 @@ public:
     class TProcessor_greater;
     class TProcessor_greatereq;
     class TProcessor_ineq;
+    class TProcessor_add;
     class TProcessor_sub;
     class TProcessor_mul;
     class TProcessor_div;
+    class TProcessor_link;
+    class TProcessor_substr;
+    class TProcessor_nextInt;
+    class TProcessor_nextStr;
+    class TProcessor_at;
+    class TProcessor_makeseq;
+    class TProcessor_push_front;
+    class TProcessor_push_back;
+    class TProcessor_subseq;
+    class TProcessor_cons;
 protected:
     deque<TScanner :: TToken> * generated_tokens;
     unordered_map<string, TFunction> symbol_table;
@@ -143,7 +155,6 @@ public:
     DEF(TProcessor_def);
     DEF(TProcessor_lambda);
     DEF(TProcessor_arg);
-    DEF(TProcessor_add);
     DEF(TProcessor_cond);
     DEF(TProcessor_eq);
     DEF(TProcessor_less);
@@ -151,9 +162,20 @@ public:
     DEF(TProcessor_greater);
     DEF(TProcessor_greatereq);
     DEF(TProcessor_ineq);
+    DEF(TProcessor_add);
     DEF(TProcessor_sub);
     DEF(TProcessor_mul);
     DEF(TProcessor_div);
+    DEF(TProcessor_link);
+    DEF(TProcessor_substr);
+    DEF(TProcessor_nextInt);
+    DEF(TProcessor_nextStr);
+    DEF(TProcessor_at);
+    DEF(TProcessor_makeseq);
+    DEF(TProcessor_push_front);
+    DEF(TProcessor_push_back);
+    DEF(TProcessor_subseq);
+    DEF(TProcessor_cons);
     TParser();
     ~TParser();
     Package execute(int & pos);

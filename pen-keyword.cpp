@@ -249,3 +249,183 @@ Package TParser :: TProcessor_div :: proc(int & pos, deque<TScanner :: TToken> &
     }
     return Package(ans);
 }
+Package TParser :: TProcessor_link :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
+{
+    Package next;
+    if (pos >= lexemes.size())
+        return Package();
+    string ans = "";
+    while (true)
+    {
+        next = std :: move(Parser.execute(pos));
+        if (next.empty())
+        {
+            break;
+        }
+        ans += *next.str_val;
+    }
+    return Package(ans);
+}
+Package TParser :: TProcessor_substr :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
+{
+    Package src;
+    Package spos, n;
+    if (pos >= lexemes.size())
+        return Package();
+    src = std :: move(Parser.execute(pos));
+    if (src.str_val == NULL)
+        Error.message("Invalid argument specified for <procedure #substr#>");
+    spos = std :: move(Parser.execute(pos));
+    n = std :: move(Parser.execute(pos));
+    if (!Parser.execute(pos).empty())
+        Error.message("Too many arguments specified for <procedure #substr#>");
+    string str_src = *(src.str_val);
+    long long a(*spos.int_val), b(*n.int_val);
+    return Package(str_src.substr(a, b));
+}
+Package TParser :: TProcessor_nextInt :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
+{
+    Package next;
+    if (pos >= lexemes.size())
+        return Package();
+    long long ans = 0;
+    while (true)
+    {
+        next = std :: move(Parser.execute(pos));
+        std :: cin >> ans;
+        if (next.empty())
+        {
+            break;
+        }
+    }
+    return Package(ans);
+}
+Package TParser :: TProcessor_nextStr :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
+{
+    Package next;
+    if (pos >= lexemes.size())
+        return Package();
+    string ans;
+    while (true)
+    {
+        next = std :: move(Parser.execute(pos));
+        std :: getline(std :: cin, ans);
+        if (next.empty())
+        {
+            break;
+        }
+    }
+    return Package(ans);
+}
+Package TParser :: TProcessor_at :: proc(int &pos, deque<TScanner::TToken> &lexemes)
+{
+    Package bg, context;
+    Package idx;
+    if (pos >= lexemes.size())
+        return Package();
+    long long ans = 0;
+    bg = std :: move(Parser.execute(pos));
+    context = bg;
+    if (context.seq_val == NULL)
+        Error.message("Invalid context specified for <procedure #at#>.");
+    while (true)
+    {
+        idx = std :: move(Parser.execute(pos));
+        if (idx.empty())
+        {
+            break;
+        }
+        ans = *idx.int_val;
+        context = context[ans];
+    }
+    return context;
+}
+Package TParser :: TProcessor_makeseq :: proc(int &pos, deque<TScanner::TToken> &lexemes)
+{
+    Package next;
+    if (pos >= lexemes.size())
+        return Package();
+    TSeq_arg tmp;
+    long long ans = 0;
+    while (true)
+    {
+        next = std :: move(Parser.execute(pos));
+        if (next.empty())
+        {
+            break;
+        }
+        tmp.push_back(std :: move(next));
+    }
+    return Package(std :: move(tmp));
+}
+Package TParser :: TProcessor_subseq :: proc(int &pos, deque<TScanner::TToken> &lexemes)
+{
+    Package bg;
+    Package idx, n;
+    if (pos >= lexemes.size())
+        return Package();
+    bg = std :: move(Parser.execute(pos));
+    if (bg.seq_val == NULL)
+        Error.message("Invalid context specified for <procedure #subseq#>.");
+    TSeq_arg & context(*bg.seq_val);
+    idx = std :: move(Parser.execute(pos));
+    n = std :: move(Parser.execute(pos));
+    TSeq_arg tmp;
+    if (*idx.int_val >= context.size())
+        return std :: move(tmp);
+    int counter = *n.int_val;
+    for (auto i = context.begin() + (*idx.int_val); i != context.end() && counter > 0; ++i, --counter)
+    {
+        tmp.push_back(*i);
+    }
+    return Package(std :: move(tmp));
+}
+Package TParser :: TProcessor_push_back :: proc(int &pos, deque<TScanner::TToken> &lexemes)
+{
+    Package bg;
+    Package n;
+    if (pos >= lexemes.size())
+        return Package();
+    bg = std :: move(Parser.execute(pos));
+    if (bg.seq_val == NULL)
+        Error.message("Invalid context specified for <procedure #subseq#>.");
+    TSeq_arg context(*bg.seq_val);
+    n = std :: move(Parser.execute(pos));
+    context.push_back(std :: move(n));
+    return Package(std :: move(context));
+}
+Package TParser :: TProcessor_push_front :: proc(int &pos, deque<TScanner::TToken> &lexemes)
+{
+    Package bg;
+    Package n;
+    if (pos >= lexemes.size())
+        return Package();
+    bg = std :: move(Parser.execute(pos));
+    if (bg.seq_val == NULL)
+        Error.message("Invalid context specified for <procedure #subseq#>.");
+    TSeq_arg context(*bg.seq_val);
+    n = std :: move(Parser.execute(pos));
+    context.push_front(std :: move(n));
+    return Package(std :: move(context));
+}
+Package TParser :: TProcessor_cons :: proc(int &pos, deque<TScanner::TToken> &lexemes)
+{
+    TSeq_arg tmp;
+    Package next;
+    if (pos >= lexemes.size())
+        return Package();
+    while (true)
+    {
+        next = std :: move(Parser.execute(pos));
+        if (next.empty())
+        {
+            break;
+        }
+        TSeq_arg & context(*next.seq_val);
+        for (auto i = context.begin(); i != context.end(); ++i)
+        {
+            tmp.push_back(*i);
+        }
+    }
+    return Package(std :: move(tmp));
+}

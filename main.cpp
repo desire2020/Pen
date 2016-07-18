@@ -26,17 +26,18 @@ int main(int argc, char *argv[])
         {
             getline(fin, op);
             Scanner.append(op);
+            Scanner.proc_import();
         }
     }
     Scanner.append("(main)");
-
+/*
     for (size_t i = 0; i < Scanner.lexemes.size(); ++i)
     {
         cout << "Token #" << i << ":\t" << Scanner.lexemes[i] << endl;
     }
     cout << endl;
     cout << "########################Token list end#############################" << endl;
-    int pos = 0;
+ */ int pos = 0;
     int ret_v;
     Parser.rebind(Scanner.lexemes);
     while (pos < Scanner.lexemes.size())
