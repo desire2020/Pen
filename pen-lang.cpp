@@ -211,12 +211,15 @@ void TScanner :: append(const std::__cxx11::string &src)
 }
 void TScanner :: proc_import()
 {
+    if (lexemes.size() < 2)
+        return;
     TToken rhs = lexemes[lexemes.size() - 2];
     TToken path = lexemes[lexemes.size() - 1];
-    lexemes.pop_back();
-    lexemes.pop_back();
+    if (rhs.token_name != id || path.token_name != immediate_str) return;
     if (seq_identifier[rhs.attribute_value] == "import" && path.token_name == immediate_str)
     {
+        lexemes.pop_back();
+        lexemes.pop_back();
         ifstream fin(seq_imm_str[path.attribute_value].c_str());
         string op;
         while (!fin.eof())
