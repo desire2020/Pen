@@ -9,7 +9,7 @@ int pos = 0;
 int ret_v;
 int main(int argc, char *argv[])
 {
-//This assembly code expands the system stack space upto 1536MB. x86-64 only.
+//This assembly code expands the system stack space upto 1800MB. x86-64 only.
     __asm__("MOVQ %0, %%RSP\n" :: "r"(p + size));
     string op;
     ifstream fin;
@@ -32,15 +32,13 @@ int main(int argc, char *argv[])
             Scanner.proc_import();
         }
     }
-    Scanner.append("(main)");
-/*
+    Scanner.append("(main)");/*
     for (size_t i = 0; i < Scanner.lexemes.size(); ++i)
     {
         cout << "Token #" << i << ":\t" << Scanner.lexemes[i] << endl;
     }
     cout << endl;
-    cout << "########################Token list end#############################" << endl;
-*/
+    cout << "########################Token list end#############################" << endl;*/
     Parser.rebind(Scanner.lexemes);
 
     while (pos < Scanner.lexemes.size())
