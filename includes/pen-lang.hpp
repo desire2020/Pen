@@ -116,6 +116,7 @@ public:
     class TProcessor;
     class TProcessor_print;
     class TProcessor_def;
+    class TProcessor_static_def;
     class TProcessor_lambda;
     class TProcessor_arg;
     class TProcessor_cond;
@@ -143,6 +144,7 @@ protected:
     deque<TScanner :: TToken> * generated_tokens;
     unordered_map<string, TFunction> symbol_table;
     unordered_map<string, TProcessor *> keyword_vtable;
+    unordered_map<string, TState> static_def_list;
     deque<TSeq_arg> arg_stack;
 public:
     class TProcessor
@@ -153,6 +155,7 @@ public:
 
     DEF(TProcessor_print);
     DEF(TProcessor_def);
+    DEF(TProcessor_static_def);
     DEF(TProcessor_lambda);
     DEF(TProcessor_arg);
     DEF(TProcessor_cond);

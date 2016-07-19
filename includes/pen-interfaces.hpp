@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstddef>
 #include <unordered_map>
+#include <unordered_set>
 #include <stack>
 #include <memory>
 #include "suimem.hpp"
@@ -15,6 +16,7 @@ using std :: istream;
 using std :: ostream;
 using std :: stack;
 using std :: unordered_map;
+using std :: unordered_set;
 using std :: pair;
 using std :: shared_ptr;
 using namespace sui;
@@ -31,7 +33,7 @@ extern TFile File;
 
 typedef deque<Package> TSeq_arg;
 typedef pair<int, int> block;
-
+typedef unordered_map<long long, unordered_map<long long, Package>> TState;
 
 const size_t _round_bracket_l   = 0;
 const size_t _round_bracket_r   = 1;

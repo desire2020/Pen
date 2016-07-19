@@ -29,6 +29,21 @@ Package TParser :: TProcessor_def :: proc(int & pos, deque<TScanner :: TToken> &
     Parser.symbol_table[title.code_seg -> title] = TFunction(title.code_seg -> title, content.code_seg -> l, content.code_seg -> r);
     return Package(0);
 }
+Package TParser :: TProcessor_static_def :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
+{
+    Package title;
+    Package content;
+    if (pos >= lexemes.size())
+        return Package();
+    title = std :: move(Parser.execute(pos));
+    content = std :: move(Parser.execute(pos));
+    ++pos;
+    if (title.code_seg == NULL || content.code_seg == NULL)
+        Error.message("Invalid arguments specified for <procedure #def#>.");
+    Parser.symbol_table[title.code_seg -> title] = TFunction(title.code_seg -> title, content.code_seg -> l, content.code_seg -> r);
+    Parser.static_def_list[title.code_seg -> title] = TState();
+    return Package(0);
+}
 Package TParser :: TProcessor_lambda :: proc(int &pos, deque<TScanner::TToken> &lexemes)
 {
     int l = pos;

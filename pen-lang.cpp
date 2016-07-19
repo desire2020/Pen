@@ -384,6 +384,7 @@ TParser :: TParser()
 {
     keyword_vtable["print"] = new TProcessor_print();
     keyword_vtable["def"]   = new TProcessor_def();
+    keyword_vtable["static_def"] = new TProcessor_static_def();
     keyword_vtable["lambda"] = new TProcessor_lambda();
     keyword_vtable["arg"]   = new TProcessor_arg();
     keyword_vtable["cond"]  = new TProcessor_cond();
@@ -456,18 +457,50 @@ Package TParser :: execute(int & pos)
                             break;
                         in_pending.push_back(next);
                     }
-                    arg_stack.push_back(std :: move(in_pending));
+                    arg_stack.push_back(in_pending);
                     int p;
+                    Package ret_p;
+                    bool is_static;
+                    bool is_renewable = true;
+                    long long x;
+                    long long y;
                     if (tmp.code_seg -> l == 0 && tmp.code_seg -> r == 0)
                     {
                         auto tg = symbol_table.find(title);
                         if (tg == symbol_table.end())
                             Error.message("Invalid operator #" + title + "# found.");
+                        auto static_flag = static_def_list.find(title);
+                        is_static = (static_flag != static_def_list.end());
+                        x = (in_pending.size() > 0 && in_pending[0].int_val != NULL) ? (*in_pending[0].int_val) : 0;
+                        y = (in_pending.size() > 1 && in_pending[1].int_val != NULL) ? (*in_pending[1].int_val) : 0;
+                        if (is_static)
+                        {
+                            if (in_pending[0].int_val != NULL)
+                            {
+                                auto saved_valuex = static_flag -> second.find(*in_pending[0].int_val);
+                                if (saved_valuex != static_flag -> second.end())
+                                {
+                                    auto saved_value = saved_valuex -> second.find(y);
+                                    if (saved_value != saved_valuex -> second.end())
+                                    {
+                                        is_renewable = false;
+                                        ret_p = saved_value -> second;
+                                    }
+                                }
+                            } else {
+                                Error.message("Fatal : A non-staticizeable function is under such a attempt.");
+                            }
+                        }
                         p = tg -> second.l;
                     } else {
                         p = tmp.code_seg -> l;
                     }
-                    auto ret_p = execute(p);
+                    if (ret_p.empty())
+                        ret_p = execute(p);
+                    if (is_static && is_renewable)
+                    {
+                        static_def_list[title][x][y] = ret_p;
+                    }
                     arg_stack.pop_back();
                     return ret_p;
                 }
