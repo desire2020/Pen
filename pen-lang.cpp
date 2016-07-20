@@ -386,6 +386,7 @@ TParser :: TParser()
     keyword_vtable["def"]   = new TProcessor_def();
     keyword_vtable["static_def"] = new TProcessor_static_def();
     keyword_vtable["lambda"] = new TProcessor_lambda();
+    keyword_vtable["function"] = new TProcessor_function();
     keyword_vtable["arg"]   = new TProcessor_arg();
     keyword_vtable["cond"]  = new TProcessor_cond();
     keyword_vtable["?"]     = new TProcessor_cond();
@@ -455,8 +456,10 @@ Package TParser :: execute(int & pos)
                         next = execute(pos);
                         if (next.empty())
                             break;
+                     //   std :: cerr << next << ' ';
                         in_pending.push_back(next);
                     }
+                    //std :: cerr << "for function #" << title << "#" << std :: endl;
                     arg_stack.push_back(in_pending);
                     int p;
                     Package ret_p;
@@ -510,7 +513,11 @@ Package TParser :: execute(int & pos)
             }
         break;
         case TScanner :: id :
-            return Package(Scanner.seq_identifier[lst[pos++].attribute_value], 0, 0);
+            ++pos;
+            if (arg_symbol_stack.empty() || arg_symbol_stack[arg_symbol_stack.size() - 1].find(Scanner.seq_identifier[lst[pos - 1].attribute_value]) == arg_symbol_stack[arg_symbol_stack.size() - 1].end())
+                return Package(Scanner.seq_identifier[lst[pos - 1].attribute_value], 0, 0);
+            else
+                return get_arg(arg_symbol_stack[arg_symbol_stack.size() - 1][Scanner.seq_identifier[lst[pos - 1].attribute_value]]);
         break;
         case TScanner :: immediate_int :
             return Package(Scanner.seq_imm_int[lst[pos++].attribute_value]);

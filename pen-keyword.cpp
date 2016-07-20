@@ -63,6 +63,28 @@ Package TParser :: TProcessor_lambda :: proc(int &pos, deque<TScanner::TToken> &
     ++pos;
     return Package("__lambda__", l, pos);
 }
+Package TParser :: TProcessor_function :: proc(int &pos, deque<TScanner::TToken> &lexemes)
+{
+    Parser.arg_symbol_stack.push_back(TPro_table());
+    Package next;
+    Package copy;
+    int no = 0;
+    while (true)
+    {
+        next = std :: move(Parser.execute(pos));
+        if (!next.empty())
+            copy = next;
+        else
+            break;
+        if (next.code_seg != NULL)
+        {
+            Parser.arg_symbol_stack[Parser.arg_symbol_stack.size() - 1][next.code_seg -> title] = no++;
+        }
+    }
+    Parser.arg_symbol_stack.pop_back();
+    return copy;
+}
+
 Package TParser :: TProcessor_arg :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
 {
     Package next;

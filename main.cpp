@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
             Scanner.proc_import();
         }
     }
-    Scanner.append("(main)");/*
-    for (size_t i = 0; i < Scanner.lexemes.size(); ++i)
+    Scanner.append("(main)");
+ /*   for (size_t i = 0; i < Scanner.lexemes.size(); ++i)
     {
         cout << "Token #" << i << ":\t" << Scanner.lexemes[i] << endl;
     }

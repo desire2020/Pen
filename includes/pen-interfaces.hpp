@@ -34,6 +34,7 @@ extern TFile File;
 typedef deque<Package> TSeq_arg;
 typedef pair<int, int> block;
 typedef unordered_map<long long, unordered_map<long long, Package>> TState;
+typedef unordered_map<string, int> TPro_table;
 
 const size_t _round_bracket_l   = 0;
 const size_t _round_bracket_r   = 1;
