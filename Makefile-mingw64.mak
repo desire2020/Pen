@@ -9,17 +9,21 @@ _OBJ = pen-lang.o \
 _DEPS = pen-interfaces.hpp \
 		pen-lang.hpp \
 		pen-utility.hpp
-
+		
 ODIR = bin
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 IDIR = includes
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-$(ODIR)/%.o : %.cpp  $(DEPS)
+makdir :
+	@rm -rf $(ODIR)
+	@mkdir $(ODIR)
+	 
+$(ODIR)/%.o : %.cpp makdir $(DEPS)
 	 $(CC) -c -o $@ $< $(CFLAGS)
-
-pen : $(OBJ)
+	 
+pen : $(OBJ) 
 	@$(CC) -o $@ $^ $(CFLAGS)
 	cp ./pen.exe ./bin/pen.exe
 
