@@ -236,7 +236,7 @@ Package TParser :: TProcessor_add :: proc(int & pos, deque<TScanner :: TToken> &
             {
                 break;
             }
-            ans += *next.int_val;
+            ans += *next.str_val;
         }
         return Package(std :: move(ans));
     }
