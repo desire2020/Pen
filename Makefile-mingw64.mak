@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -fno-stack-protector -rdynamic -O2
+CFLAGS = -std=c++11 -fno-stack-protector -O2 -Wl,--stack=2147483648
 
 _OBJ = pen-lang.o \
 	   pen-interfaces.o \
@@ -17,12 +17,11 @@ IDIR = includes
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 $(ODIR)/%.o : %.cpp  $(DEPS)
-	 @mkdir $(ODIR) -p
-	 @$(CC) -c -o $@ $< $(CFLAGS)
+	 $(CC) -c -o $@ $< $(CFLAGS)
 
 pen : $(OBJ)
 	@$(CC) -o $@ $^ $(CFLAGS)
-	ifeq ($(shell uname), Linux) @cp ./pen ./bin/pen endif
+	cp ./pen.exe ./bin/pen.exe
 
 .PHONY : clean rebuild
 
@@ -32,6 +31,6 @@ clean :
 	@rm -rf $(ODIR)
 
 install : pen
-	@sudo cp ./pen /usr/bin/pen
+	copy pen.exe C:\Windows\pen.exe
 
 rebuild : clean pen

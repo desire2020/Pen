@@ -211,17 +211,35 @@ Package TParser :: TProcessor_add :: proc(int & pos, deque<TScanner :: TToken> &
     Package next;
     if (pos >= lexemes.size())
         return Package();
-    long long ans = 0;
-    while (true)
+    next = std :: move(Parser.execute(pos));
+    if (next.int_val != NULL)
     {
-        next = std :: move(Parser.execute(pos));
-        if (next.empty())
+        long long ans = *next.int_val;
+        while (true)
         {
-            break;
+            next = std :: move(Parser.execute(pos));
+            if (next.empty())
+            {
+                break;
+            }
+            ans += *next.int_val;
         }
-        ans += *next.int_val;
+        return Package(ans);
+    } else {
+        if (next.str_val == NULL)
+            Error.message("Invalid target specified for procedure #+#.");
+        string ans = *next.str_val;
+        while (true)
+        {
+            next = std :: move(Parser.execute(pos));
+            if (next.empty())
+            {
+                break;
+            }
+            ans += *next.int_val;
+        }
+        return Package(std :: move(ans));
     }
-    return Package(ans);
 }
 Package TParser :: TProcessor_sub :: proc(int & pos, deque<TScanner :: TToken> & lexemes)
 {

@@ -33,7 +33,7 @@ string TScanner :: TToolkit :: str(long long x)
     return ans;
 }
 
-long long TScanner :: TToolkit :: val(const std::__cxx11::string &x)
+long long TScanner :: TToolkit :: val(const std::string &x)
 {
     if (x == "" || x == "0")
         return 0;
@@ -89,7 +89,7 @@ long long TScanner :: TToolkit :: val(const std::__cxx11::string &x)
         }
     }
 }
-string TScanner :: TToolkit :: eschar_reinterpret(const std::__cxx11::string &src)
+string TScanner :: TToolkit :: eschar_reinterpret(const std::string &src)
 {
     string new_cp;
     for (int i = 0; i < src.length(); ++i)
@@ -136,7 +136,7 @@ string TScanner :: TToolkit :: eschar_reinterpret(const std::__cxx11::string &sr
     return new_cp;
 }
 
-void TScanner :: append(const std::__cxx11::string &src)
+void TScanner :: append(const std::string &src)
 {
     int p = 0, last_p = 0;
     string symbol;
@@ -231,7 +231,7 @@ void TScanner :: proc_import()
     }
 }
 
-void TFile :: fopen(const std::__cxx11::string &path)
+void TFile :: fopen(const std::string &path)
 {
     ifstream fin(path.c_str());
     string op;
@@ -253,10 +253,10 @@ void TFile :: fopen(std::istream &src)
 }
 
 TFunction :: TFunction() : title(""), l(0), r(0) {}
-TFunction :: TFunction(const std::__cxx11::string &_title, int _l, int _r) : title(_title), l(_l), r(_r) {}
+TFunction :: TFunction(const std::string &_title, int _l, int _r) : title(_title), l(_l), r(_r) {}
 TFunction :: TFunction(int _l, int _r) : title(""), l(_l), r(_r) {}
 
-Package :: Package(const std::__cxx11::string &_str)
+Package :: Package(const std::string &_str)
     :
       int_val(),
       str_val(new string(_str)),
@@ -280,7 +280,7 @@ Package :: Package(TSeq_arg && _seq)
       str_val(),
       seq_val(new TSeq_arg(std :: move(_seq))),
       code_seg() {}
-Package :: Package(const std::__cxx11::string &_title, int _l, int _r)
+Package :: Package(const std::string &_title, int _l, int _r)
     :
       int_val(),
       str_val(),

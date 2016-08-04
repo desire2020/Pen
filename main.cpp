@@ -1,18 +1,24 @@
 #include <iostream>
 #include "./includes/pen-utility.hpp"
 using namespace std;
+#ifdef _LINUX
 constexpr size_t size = 1800 << 20;
 char p[size];
-
-
+#endif
+#ifdef _WIN32
+size_t size = 1800 << 20;
+#endif
+size_t i;
+string op;
+ifstream fin;
 int pos = 0;
 int ret_v;
 int main(int argc, char *argv[])
 {
 //This assembly code expands the system stack space upto 1800MB. x86-64 only.
+#ifdef _LINUX
     __asm__("MOVQ %0, %%RSP\n" :: "r"(p + size));
-    string op;
-    ifstream fin;
+#endif
     if (argc == 1)
     {
         while (true)
@@ -33,13 +39,13 @@ int main(int argc, char *argv[])
         }
     }
     Scanner.append("(main)");
- /*   for (size_t i = 0; i < Scanner.lexemes.size(); ++i)
+    /*for (i = 0; i < Scanner.lexemes.size(); ++i)
     {
         cout << "Token #" << i << ":\t" << Scanner.lexemes[i] << endl;
     }
     cout << endl;
-    cout << "########################Token list end#############################" << endl;*/
-    Parser.rebind(Scanner.lexemes);
+    cout << "########################Token list end#############################" << endl;
+   */ Parser.rebind(Scanner.lexemes);
 
     while (pos < Scanner.lexemes.size())
     {
