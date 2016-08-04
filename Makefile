@@ -22,7 +22,7 @@ $(ODIR)/%.o : %.cpp  $(DEPS)
 
 pen : $(OBJ)
 	@$(CC) -o $@ $^ $(CFLAGS)
-	ifeq ($(shell uname), Linux) @cp ./pen ./bin/pen endif
+	@cp ./pen ./bin/pen
 
 .PHONY : clean rebuild
 
